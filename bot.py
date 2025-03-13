@@ -82,8 +82,7 @@ def find_arbitrage_opportunities(prices):
 
             if min_price > 0:
                 profit_percent = ((max_price - min_price) / min_price) * 100
-                profit_percent = round(profit_percent, 2)  # ✅ FOYDA YAXLITLANADI
-
+                profit_percent = round(profit_percent, 2) 
                 if profit_percent > 1:
                     opportunities.append({
                         "symbol": symbol,
@@ -106,8 +105,8 @@ def send_telegram_alerts(chat_id, loading_message_id):
         message = (
             f"🔥 **Arbitrage Opportunity** 🔥\n\n"
             f"💰 **{opp['symbol']}**\n"
-            f"🔹 Buy on **{opp['buy']}** at `{opp['buy_price']} USDT`\n"
-            f"🔹 Sell on **{opp['sell']}** at `{opp['sell_price']} USDT`\n"
+            f"🔹 Buy on **{opp['buy']}** at `{opp['buy_price']:.6f} USDT`\n"
+            f"🔹 Sell on **{opp['sell']}** at `{opp['sell_price']:.6f} USDT`\n"
             f"📈 **Profit:** `{opp['profit']}%`" 
         )
 
