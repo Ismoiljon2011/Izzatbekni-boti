@@ -4,13 +4,10 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from decimal import Decimal
 
-# ✅ Telegram token va chat ID
 TELEGRAM_BOT_TOKEN = "7858589930:AAEPowvEr3Rkol4VJIadHbiHnISJclvdEAw"
-CHAT_ID = 5831802170  # Sizning Telegram IDingiz
-
+CHAT_ID = 5831802170 
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
-# ✅ Exchange API lar
 EXCHANGES = {
     "binance": "https://api.binance.com/api/v3/ticker/price",
     "mexc": "https://www.mexc.com/open/api/v2/market/ticker",
@@ -18,7 +15,6 @@ EXCHANGES = {
     "huobi": "https://api.huobi.pro/market/tickers"
 }
 
-# 🔹 /start komandasi - MENYU qo‘shildi
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -35,7 +31,6 @@ def send_welcome(message):
         reply_markup=markup
     )
 
-# 🔹 Narxlarni olish funksiyasi
 def fetch_prices():
     prices = {}
     try:
@@ -72,7 +67,6 @@ def fetch_prices():
 
     return prices
 
-# 🔹 Arbitraj imkoniyatlarini aniqlash
 def find_arbitrage_opportunities(prices):
     opportunities = []
     symbols = {key.split("_")[1] for key in prices.keys()}
@@ -101,23 +95,20 @@ def find_arbitrage_opportunities(prices):
                     })
 
     return opportunities
-
-# 🔹 Arbitrage natijalarini chiqarish (Vaqtinchalik yuklanmoqda xabarini o‘chirib)
 def send_telegram_alerts(chat_id, loading_message_id):
     prices = fetch_prices()
     opportunities = find_arbitrage_opportunities(prices)
 
-    # ⏳ "Yuklanmoqda..." xabarini o‘chirib tashlaymiz
     bot.delete_message(chat_id, loading_message_id)
 
     if opportunities:
-        opp = opportunities[0]  # Faqat 1 ta natija yuboriladi
+        opp = opportunities[0] 
         message = (
             f"🔥 **Arbitrage Opportunity** 🔥\n\n"
             f"💰 **{opp['symbol']}**\n"
-            f"🔹 Buy on **{opp['buy']}** at `{opp['buy_price']:.2f} USDT`\n"
-            f"🔹 Sell on **{opp['sell']}** at `{opp['sell_price']:.2f} USDT`\n"
-            f"📈 **Profit:** `{opp['profit']}%`"  # ✅ FOYDA YAXLITLANIB CHIQARILADI
+            f"🔹 Buy on **{opp['buy']}** at `{opp['buy_price']} USDT`\n"
+            f"🔹 Sell on **{opp['sell']}** at `{opp['sell_price']} USDT`\n"
+            f"📈 **Profit:** `{opp['profit']}%`" 
         )
 
         markup = InlineKeyboardMarkup()
@@ -128,16 +119,12 @@ def send_telegram_alerts(chat_id, loading_message_id):
     else:
         bot.send_message(chat_id, "⚠️ Hozircha foydali arbitraj topilmadi.", parse_mode="Markdown")
 
-# 🔹 Arbitrage tekshirish tugmasi
 @bot.message_handler(func=lambda message: message.text == "🔍 Arbitrage Tekshirish")
 def check_arbitrage(message):
-    # ⏳ Yuklanmoqda xabarini yuboramiz va ID sini saqlab qo‘yamiz
     loading_message = bot.send_message(message.chat.id, "⏳ Arbitrage ma’lumotlari yuklanmoqda...")
     
-    # Yangi ma’lumotlarni chiqarish
     send_telegram_alerts(message.chat.id, loading_message.message_id)
 
-# 🔹 Tugmalarni boshqarish (Ko‘proq ma’lumot)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("info_"))
 def callback_info(call):
     symbol = call.data.split("_")[1]
@@ -156,6 +143,5 @@ def callback_info(call):
         reply_markup=markup
     )
 
-# 🔹 Botni ishga tushirish
 print("✅ Bot ishga tushdi!")
 bot.polling(none_stop=True)
